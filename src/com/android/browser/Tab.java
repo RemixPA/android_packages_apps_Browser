@@ -18,11 +18,13 @@ package com.android.browser;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -1162,10 +1164,37 @@ class Tab implements PictureListener {
 
         mDownloadListener = new BrowserDownloadListener() {
             public void onDownloadStart(String url, String userAgent,
-                    String contentDisposition, String mimetype, String referer,
+                    String contentDisposition, String mimeType, String referer,
                     long contentLength) {
-                mWebViewController.onDownloadStart(Tab.this, url, userAgent, contentDisposition,
-                        mimetype, referer, contentLength);
+                final String tmpUrl = url;
+                final String tmpUserAgent = userAgent;
+                final String tmpContentDisposition = contentDisposition;
+                final String tmpMimeType = mimeType;
+                final String tmpReferer = referer;
+                final long tmpContentLength = contentLength;
+                
+                String targetName = url.substring(url.lastIndexOf("/") + 1, url.length());
+                
+                Dialog dlCheckDialog = new AlertDialog.Builder(mContext).
+                        setTitle(mContext.getResources().getString(R.string.confirm_download_title)).
+                        setMessage(mContext.getResources()
+                                .getString(R.string.confirm_download_message) + targetName).
+                        setPositiveButton(mContext.getResources().getString(R.string.ok),
+                                new OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (which == DialogInterface.BUTTON_POSITIVE) {
+                                            mWebViewController.onDownloadStart(Tab.this, tmpUrl,
+                                                    tmpUserAgent, tmpContentDisposition,
+                                                    tmpMimeType, tmpReferer, tmpContentLength);
+                                        }
+
+                                    }
+                                }).
+                        setNegativeButton(mContext.getResources().getString(R.string.cancel), null).
+                        create();
+                dlCheckDialog.show();
             }
         };
         mWebBackForwardListClient = new WebBackForwardListClient() {
