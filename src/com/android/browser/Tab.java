@@ -1164,16 +1164,16 @@ class Tab implements PictureListener {
 
         mDownloadListener = new BrowserDownloadListener() {
             public void onDownloadStart(String url, String userAgent,
-                    String contentDisposition, String mimeType, String referer,
+                    String contentDisposition, String mimetype, String referer,
                     long contentLength) {
                 final String tmpUrl = url;
                 final String tmpUserAgent = userAgent;
                 final String tmpContentDisposition = contentDisposition;
-                final String tmpMimeType = mimeType;
+                final String tmpMimetype = mimetype;
                 final String tmpReferer = referer;
                 final long tmpContentLength = contentLength;
                 
-                String targetName = url.substring(url.lastIndexOf("/") + 1, url.length());
+                String targetName = URLUtil.guessFileName(url, contentDisposition, mimetype);
                 
                 Dialog dlCheckDialog = new AlertDialog.Builder(mContext).
                         setTitle(mContext.getResources().getString(R.string.confirm_download_title)).
@@ -1187,7 +1187,7 @@ class Tab implements PictureListener {
                                         if (which == DialogInterface.BUTTON_POSITIVE) {
                                             mWebViewController.onDownloadStart(Tab.this, tmpUrl,
                                                     tmpUserAgent, tmpContentDisposition,
-                                                    tmpMimeType, tmpReferer, tmpContentLength);
+                                                    tmpMimetype, tmpReferer, tmpContentLength);
                                         }
 
                                     }
